@@ -21,3 +21,31 @@ $(function () {
   //
   // TODO: Add code to display the current date in the header of the page.
 });
+
+$(document).ready(function () {
+  displayDate();
+  addColorsToTimeBlock();
+})
+
+
+function addColorsToTimeBlock() {
+  var timeBlockContainers = $('.time-block');
+  var currHr = dayjs().hour();
+  for (var container of timeBlockContainers) {
+    var id = $(container).attr('id');
+    var hrTimeBlock = id.split("-")[1];
+    if(hrTimeBlock > currHr){
+      $(container).addClass('future');
+    } else if(hrTimeBlock < currHr){
+      $(container).addClass('past');
+    }else{
+      $(container).addClass('current');
+    }
+  }
+}
+
+function displayDate(){
+  $(currentDay).text(dayjs().format('dddd, MMMM DD, YYYY'));
+}
+
+
