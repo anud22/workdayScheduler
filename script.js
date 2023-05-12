@@ -25,8 +25,19 @@ $(function () {
 $(document).ready(function () {
   displayDate();
   addColorsToTimeBlock();
-})
+ // displayEventsInTimeBlock();
+  var timeBlockContainer = $('.container-lg');
+  timeBlockContainer.on('click','.saveBtn', saveEventToLocalStorage);
+});
 
+function saveEventToLocalStorage(event){
+  var timeBlockId = $($(event.target).parent()).attr('id');
+  var text = $(event.target).siblings('textarea').val().trim();
+  if(text === ''){
+    return;
+  }
+  
+}
 
 function addColorsToTimeBlock() {
   var timeBlockContainers = $('.time-block');
