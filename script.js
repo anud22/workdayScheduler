@@ -80,8 +80,9 @@ function removeOldDateEventsFromLocalStorage() {
     return;
   }
 
-  var currEvents = events.filter(event => event.date < currDate);
-  localStorage.setItem("events", JSON.stringify(currEvents));
+  if (events.date != currDate) {
+    localStorage.removeItem("events");
+  }
 }
 
 function getLocalStorageForCurrentDay() {
