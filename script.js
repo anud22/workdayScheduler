@@ -1,32 +1,9 @@
 
 'use strict';
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
 
 var dateFormat = 'MMDDYYYY';
 var currDate = dayjs().format(dateFormat);
 
-$(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
-});
 
 $(document).ready(function () {
   displayDate();
@@ -50,11 +27,17 @@ function saveEventToLocalStorage() {
 
 function addToLocalStorage(eventByHrToAdd) {
   var eventsForCurrDayLS = getLocalStorageForCurrentDay();
+  var alertMsg = 'Event was added to Local Storage !!!';
+
   var eventsForCurrDayToAdd = {};
   eventsForCurrDayToAdd.date = currDate;
   if (eventsForCurrDayLS == null) {
+    if (eventByHrToAdd.event.trim() === '') {
+      return;
+    }
     eventsForCurrDayToAdd.eventsByHour = [eventByHrToAdd];
     localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd));
+    showAlertWhenSaved(alertMsg);
     return;
   }
 
@@ -64,14 +47,19 @@ function addToLocalStorage(eventByHrToAdd) {
     if (eventByHrLS.hr === eventByHrToAdd.hr) {
       eventByHrLS.event = eventByHrToAdd.event;
       eventByHrAlreadyExistsLS = true;
+      alertMsg = 'Event was updated in Local Storage !!!';
       break;
     }
   }
   if (!eventByHrAlreadyExistsLS) {
+    if (eventByHrToAdd.event.trim() === '') {
+      return;
+    }
     eventsByHrLS.push(eventByHrToAdd);
   }
   eventsForCurrDayToAdd.eventsByHour = eventsByHrLS;
-  localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd))
+  localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd));
+  showAlertWhenSaved(alertMsg);
 }
 
 function removeOldDateEventsFromLocalStorage() {
@@ -83,6 +71,13 @@ function removeOldDateEventsFromLocalStorage() {
   if (events.date != currDate) {
     localStorage.removeItem("events");
   }
+}
+
+function showAlertWhenSaved(alertMsg) {
+  var alert =  $('#alert');
+  alert.text(alertMsg);
+  alert.removeClass('d-none').hide().fadeIn()
+  alert.delay(1000).fadeOut();
 }
 
 function getLocalStorageForCurrentDay() {
