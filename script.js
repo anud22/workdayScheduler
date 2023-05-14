@@ -27,7 +27,7 @@ function saveEventToLocalStorage() {
 
 function addToLocalStorage(eventByHrToAdd) {
   var eventsForCurrDayLS = getLocalStorageForCurrentDay();
-  var alertMsg = 'Event was added to Local Storage !!!';
+  var alertMsg = 'Event was added to Local Storage ';
 
   var eventsForCurrDayToAdd = {};
   eventsForCurrDayToAdd.date = currDate;
@@ -43,11 +43,16 @@ function addToLocalStorage(eventByHrToAdd) {
 
   var eventsByHrLS = eventsForCurrDayLS.eventsByHour;
   var eventByHrAlreadyExistsLS = false;
+  var eventByHrDeleted = false;
+
   for (var eventByHrLS of eventsByHrLS) {
     if (eventByHrLS.hr === eventByHrToAdd.hr) {
+      if (eventByHrToAdd.event === '') {
+        eventByHrDeleted = true;
+      }
       eventByHrLS.event = eventByHrToAdd.event;
       eventByHrAlreadyExistsLS = true;
-      alertMsg = 'Event was updated in Local Storage !!!';
+      alertMsg = 'Event was updated in Local Storage ';
       break;
     }
   }
@@ -56,6 +61,11 @@ function addToLocalStorage(eventByHrToAdd) {
       return;
     }
     eventsByHrLS.push(eventByHrToAdd);
+  } else {
+    if (eventByHrDeleted) {
+      eventsByHrLS = eventsByHrLS.filter(obj => !(obj.hr === eventByHrToAdd.hr && obj.event.trim() === ''));
+      alertMsg = 'Event was deleted from Local Storage ';
+    }
   }
   eventsForCurrDayToAdd.eventsByHour = eventsByHrLS;
   localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd));
@@ -74,10 +84,12 @@ function removeOldDateEventsFromLocalStorage() {
 }
 
 function showAlertWhenSaved(alertMsg) {
-  var alert =  $('#alert');
-  alert.text(alertMsg);
+  var alert = $('#alert');
+  var alertTxt = $('#alert .alert-icon');
+  alertTxt.html(alertMsg + '<i class="fas fa-check"></i>');
   alert.removeClass('d-none').hide().fadeIn()
   alert.delay(1000).fadeOut();
+
 }
 
 function getLocalStorageForCurrentDay() {
