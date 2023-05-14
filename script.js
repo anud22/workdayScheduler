@@ -1,16 +1,11 @@
+
+'use strict';
 // Wrap all code that interacts with the DOM in a call to jQuery to ensure that
 // the code isn't run until the browser has finished rendering all the elements
 // in the html.
 
-var eventByHr = {
-  hr: "",
-  event: ""
-}
-var eventByDay = {
-  timestamp: "",
-  eventsByHour: [eventByHr]
-}
-var events = [eventByDay];
+var dateFormat = 'MMDDYYYY';
+var currDate = dayjs().format(dateFormat);
 
 $(function () {
   // TODO: Add a listener for click events on the save button. This code should
@@ -38,16 +33,14 @@ $(document).ready(function () {
   addColorsToTimeBlock();
   removeOldDateEventsFromLocalStorage();
   displayEventsInTimeBlock();
+  var saveBtn = $('button.saveBtn');
   saveBtn.on('click', saveEventToLocalStorage);
 });
 
 function saveEventToLocalStorage() {
   var timeBlockId = $($(this).closest('.time-block')).attr('id');
   var text = $(this).closest('.time-block').find('textarea').val().trim();
-  if (text === '') {
-    return;
-  }
-  eventByHr = {
+  var eventByHr = {
     hr: timeBlockId,
     event: text
   }
@@ -56,55 +49,62 @@ function saveEventToLocalStorage() {
 }
 
 function addToLocalStorage(eventByHrToAdd) {
-  var currTimestamp = dayjs().unix();
-  var eventsByDate = getLocalStorageForCurrentDay();
-
-  if (eventsByDate == null) {
-    eventByDay.timestamp = currTimestamp;
-    eventByDay.eventsByHour = [eventByHrToAdd];
+  var eventsForCurrDayLS = getLocalStorageForCurrentDay();
+  var eventsForCurrDayToAdd = {};
+  eventsForCurrDayToAdd.date = currDate;
+  if (eventsForCurrDayLS == null) {
+    eventsForCurrDayToAdd.eventsByHour = [eventByHrToAdd];
+    localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd));
     return;
   }
-  var events = eventsByDate.eventsByHour;
-  for (var eventByHour of events) {
-    if (eventByHour.hr === eventByHrToAdd.hr) {
-      eventByHour.event = eventByHrToAdd.event;
-      return;
+
+  var eventsByHrLS = eventsForCurrDayLS.eventsByHour;
+  var eventByHrAlreadyExistsLS = false;
+  for (var eventByHrLS of eventsByHrLS) {
+    if (eventByHrLS.hr === eventByHrToAdd.hr) {
+      eventByHrLS.event = eventByHrToAdd.event;
+      eventByHrAlreadyExistsLS = true;
+      break;
     }
   }
-  events.push(eventByHrToAdd);
+  if (!eventByHrAlreadyExistsLS) {
+    eventsByHrLS.push(eventByHrToAdd);
+  }
+  eventsForCurrDayToAdd.eventsByHour = eventsByHrLS;
+  localStorage.setItem("events", JSON.stringify(eventsForCurrDayToAdd))
 }
 
-function removeOldDateEventsFromLocalStorage(){
-  events = localStorage.getItem("events");
+function removeOldDateEventsFromLocalStorage() {
+  var events = JSON.parse(localStorage.getItem("events"));
   if (events == null) {
-    return null;
+    return;
   }
-  var currTimestamp = dayjs().unix();
-  var currEvents = events.filter(event => event.timestamp < currTimestamp);
-  localStorage.setItem("events", currEvents);
+
+  var currEvents = events.filter(event => event.date < currDate);
+  localStorage.setItem("events", JSON.stringify(currEvents));
 }
 
 function getLocalStorageForCurrentDay() {
-  events = localStorage.getItem("events");
-  if (events == null) {
+  var eventsLS = JSON.parse(localStorage.getItem("events"));
+  if (eventsLS == null) {
     return null;
   }
-  var currTimestamp = dayjs().unix();
-  for (var eventByDate of events) {
-    if (eventByDate.timestamp === currTimestamp) {
-      return eventByDate;
-    }
+
+  if (eventsLS.date === currDate) {
+    return eventsLS;
   }
+
   return null;
 }
 
+
 function displayEventsInTimeBlock() {
-  var events = getLocalStorageForCurrentDay();
-  if (events == null || events.length == 0) {
+  var eventsLS = getLocalStorageForCurrentDay();
+  if (eventsLS == null || eventsLS.length == 0) {
     return;
   }
-  for(var eventByHr of events){
-    $("#" +eventByHr.hr).text(eventByHr.text);
+  for (var eventByHr of eventsLS.eventsByHour) {
+    $("#" + eventByHr.hr).find("textarea").html(eventByHr.event);
   }
 }
 
