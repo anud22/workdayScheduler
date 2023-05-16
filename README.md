@@ -10,6 +10,7 @@
 - [Description](#description)
 - [Tasks Accomplished](#tasks-completed)
 - [Deployment Links](#deployment-links)
+- [Video](#video)
 - [References](#references)
 <br>
 <br>
@@ -30,8 +31,8 @@ Refactored code by accomplishing following tasks -
 ### Deployment Links
 [Link of Deployed app ](https://anud22.github.io/workdayScheduler/)
 
-### Screenshot
-![Image 1](DeployedApp.png)
+### Video
+[Workday Calculator](https://drive.google.com/file/d/1RaDk5zujS2_ojVcRftXdKDGJuu1Dsr-f/view)
 
 ### References
 [msdn web docs](https://developer.mozilla.org/en-US/docs/Web/HTML)
